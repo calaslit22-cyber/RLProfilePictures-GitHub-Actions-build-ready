@@ -680,7 +680,19 @@ void RLProfilePictures::RenderPlatformLogos(CanvasWrapper canvas) {
             // Normalize by the largest native dimension so every image fits
             // inside the same 100 * profileScale bounding box.
             const Vector2 imageSize = image->GetSize();
-            const float maxDimension = static_cast<float>(std::max(imageSize.X, imageSize.Y));
+if (image && image->IsLoadedForCanvas()) {
+    // DrawTexture scales from the image's native pixel dimensions.
+    // Online profile pictures were effectively treated as 48x48, but
+    // local bot PNGs can be much larger (and can be non-square).
+    // Normalize by the largest native dimension so every image fits
+    // inside the same 100 * profileScale bounding box.
+    const Vector2 imageSize = image->GetSize();
+    const float maxDimension = static_cast<float>((std::max)(imageSize.X, imageSize.Y));
+    if (maxDimension > 0.0f) {
+        const float imageScale = (100.0f / maxDimension) * sbPosInfo.profileScale;
+        canvas.DrawTexture(image.get(), imageScale);
+    }
+}
             if (maxDimension > 0.0f) {
                 const float imageScale = (100.0f / maxDimension) * sbPosInfo.profileScale;
                 canvas.DrawTexture(image.get(), imageScale);
