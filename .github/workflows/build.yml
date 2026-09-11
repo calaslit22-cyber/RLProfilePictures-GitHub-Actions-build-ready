@@ -1,0 +1,65 @@
+name: Build RLProfilePictures
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Checkout BakkesMod SDK
+        uses: actions/checkout@v4
+        with:
+          repository: bakkesmodorg/BakkesModSDK
+          path: bakkesmod/bakkesmodsdk
+
+      - name: Checkout vcpkg
+        uses: actions/checkout@v4
+        with:
+          repository: microsoft/vcpkg
+          path: vcpkg
+
+      - name: Bootstrap vcpkg
+        shell: pwsh
+        run: .\vcpkg\bootstrap-vcpkg.bat
+
+      - name: Install vcpkg dependencies
+        shell: pwsh
+        run: .\vcpkg\vcpkg.exe install --triplet x64-windows --x-manifest-root=$env:GITHUB_WORKSPACE
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build Release x64
+        shell: pwsh
+        run: >-
+          msbuild RLProfilePictures.sln
+          /m
+          /p:Configuration=Release
+          /p:Platform=x64
+          /p:BakkesModPath=$env:GITHUB_WORKSPACE\bakkesmod
+          /p:PostBuildEventUseInBuild=false
+
+      - name: Verify DLL
+        shell: pwsh
+        run: |
+          if (!(Test-Path "plugins\RLProfilePictures.dll")) {
+            Write-Error "Build completed but plugins\RLProfilePictures.dll was not found."
+            Get-ChildItem -Path . -Recurse -Filter *.dll
+            exit 1
+          }
+          Get-Item "plugins\RLProfilePictures.dll" | Format-List Name,Length,FullName
+
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: RLProfilePictures-DLL
+          path: plugins/RLProfilePictures.dll
+          if-no-files-found: error
+          retention-days: 30
