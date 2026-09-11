@@ -1,0 +1,36 @@
+RLProfilePictures - Local Bot Profile Pictures
+================================================
+
+This version adds local profile-picture support for Rocket League bots.
+
+Bot images are read from:
+%APPDATA%\bakkesmod\bakkesmod\data\bots
+
+The bot's in-game name is used as the PNG filename:
+    zen       -> zen.png
+    Jay       -> Jay.png
+    Lila Bot  -> Lila Bot.png
+    Nexto     -> Nexto.png
+
+Special case:
+    bot name "." -> dot.png
+
+Human-player profile pictures still use the original RLProfilePictures online behavior.
+
+BUILD
+-----
+1. Make sure Visual Studio has "Desktop development with C++" installed.
+2. Close Rocket League and BakkesMod before replacing the plugin.
+3. Open RLProfilePictures.sln in Visual Studio.
+4. Select:
+      Release
+      x64
+5. Build -> Build Solution.
+6. The project is configured to copy RLProfilePictures.dll to the BakkesMod plugins folder automatically.
+7. Start BakkesMod and Rocket League.
+8. Your existing data\bots PNG files should then appear for bots on the scoreboard.
+
+IMPORTANT
+---------
+Do not rename the bot PNG files unless the bot's in-game name changes.
+For the bot whose actual name is ".", keep the filename as dot.png.

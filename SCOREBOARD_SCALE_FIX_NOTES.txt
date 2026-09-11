@@ -1,0 +1,17 @@
+Scoreboard bot PFP scaling fix
+
+Changed only RLProfilePictures.cpp.
+
+Old behavior:
+    canvas.DrawTexture(image.get(), 100.0f / 48.0f * sbPosInfo.profileScale);
+
+Problem:
+DrawTexture uses the ImageWrapper's native image size. Local bot PNGs have
+mixed resolutions (including very large files), so they were drawn huge.
+
+New behavior:
+The image scale is normalized by max(width, height), preserving aspect ratio
+and fitting every image inside the same 100 * profileScale bounding box.
+
+Offline/private bot rendering guard was not changed.
+No replay/"Scored by" code has been added in this patch.
